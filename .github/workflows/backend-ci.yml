@@ -46,4 +46,4 @@ jobs:
 
       - name: Run backend tests
         working-directory: backend
-        run: ./mvnw -B clean verify
+        run: bash ./mvnw -B clean verify
