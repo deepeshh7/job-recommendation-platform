@@ -1,7 +1,10 @@
+
 package job_recommendation_backend.exception;
 
 import job_recommendation_backend.dto.ErrorResponse;
+
 import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -54,6 +57,29 @@ public class GlobalExceptionHandler {
                 "Bad Request",
                 "Validation failed",
                 fieldErrors
+        );
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ErrorResponse handleResponseStatus(
+            ResponseStatusException exception) {
+
+        int status = exception.getStatusCode().value();
+
+        HttpStatus httpStatus = HttpStatus.resolve(status);
+
+        String error = httpStatus != null
+                ? httpStatus.getReasonPhrase()
+                : "Request Error";
+
+        String message = exception.getReason() != null
+                ? exception.getReason()
+                : "Request failed";
+
+        return new ErrorResponse(
+                status,
+                error,
+                message
         );
     }
 }

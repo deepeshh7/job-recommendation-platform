@@ -5,19 +5,24 @@ import job_recommendation_backend.entity.Job;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface JobRepository extends JpaRepository<Job, Long> {
 
+    // Search jobs by title, company or description
     @Query("""
             SELECT j FROM Job j
             WHERE LOWER(j.title) LIKE LOWER(CONCAT('%', :keyword, '%'))
                OR LOWER(j.company) LIKE LOWER(CONCAT('%', :keyword, '%'))
                OR LOWER(j.description) LIKE LOWER(CONCAT('%', :keyword, '%'))
             """)
-    List<Job> searchJobs(@Param("keyword") String keyword);
+    Page<Job> searchJobs(
+            @Param("keyword") String keyword,
+            Pageable pageable
+    );
 
+    // Filter jobs by location, employment type and experience
     @Query("""
             SELECT j FROM Job j
             WHERE (:location IS NULL
@@ -27,9 +32,10 @@ public interface JobRepository extends JpaRepository<Job, Long> {
               AND (:maxExperience IS NULL
                    OR j.minExperience <= :maxExperience)
             """)
-    List<Job> filterJobs(
+    Page<Job> filterJobs(
             @Param("location") String location,
             @Param("employmentType") String employmentType,
-            @Param("maxExperience") Integer maxExperience
+            @Param("maxExperience") Integer maxExperience,
+            Pageable pageable
     );
 }
